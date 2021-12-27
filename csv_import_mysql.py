@@ -127,30 +127,30 @@ def check_order_status():
         req = requests.post(check_order_url, json=data, headers=headers)
         get_data = req.json()
         print("********check_order_status******* 请求返回的数据", get_data)
-        # is_success = get_data["success"]
-        # if is_success is True:
-        #     status = get_data["content"]["status"]
-        #     if status == "SUCCESS":
-        #         pay_user_updata = dict()
-        #         success_insert = dict()
-        #         # 修改payuser表转账状态
-        #         pay_user_updata["rid"] = pay_user["rid"]
-        #         pay_user_updata["consent_status"] = status
-        #         PayUser.save(pay_user_updata)
-        #         # 将转账成功的接口数据存入success_result表
-        #         success_insert["pay_user_rid"] = pay_user["rid"]
-        #         success_insert.update(get_data["content"])
-        #         PayUser.addAll(success_insert)
-        #
-        #     elif status == "FAIL":
-        #         # 转账失败将失败信息存入数据库
-        #         fail_insert = dict()
-        #         fail_insert["pay_user_rid"] = pay_user["rid"]
-        #         fail_insert.update(get_data["content"])
-        #     else:
-        #         logging.info("rid为", pay_user["rid"], "查看转账结果接口其状态为转账中")
-        # else:
-        #     logging.info("查看转账结果接口调用失败rid为", pay_user["rid"], "接口失败原因:", get_data["errmsg"])
+        is_success = get_data["success"]
+        if is_success is True:
+            status = get_data["content"]["status"]
+            if status == "SUCCESS":
+                pay_user_updata = dict()
+                success_insert = dict()
+                # 修改payuser表转账状态
+                pay_user_updata["rid"] = pay_user["rid"]
+                pay_user_updata["consent_status"] = status
+                PayUser.save(pay_user_updata)
+                # 将转账成功的接口数据存入success_result表
+                success_insert["pay_user_rid"] = pay_user["rid"]
+                success_insert.update(get_data["content"])
+                PayUser.addAll(success_insert)
+
+            elif status == "FAIL":
+                # 转账失败将失败信息存入数据库
+                fail_insert = dict()
+                fail_insert["pay_user_rid"] = pay_user["rid"]
+                fail_insert.update(get_data["content"])
+            else:
+                logging.info("rid为", pay_user["rid"], "查看转账结果接口其状态为转账中")
+        else:
+            logging.info("查看转账结果接口调用失败rid为", pay_user["rid"], "接口失败原因:", get_data["errmsg"])
 
 
 # 调用登录接口
@@ -185,9 +185,11 @@ def post_order():
         access_token = grant_authorization()
         conn.set(name='access_token', value=access_token, ex=600)
     commit_order_url = 'http://dev.payout.vip/mbs/api/outerFinance/postTransferOrder'
-    pay_user_list = PayUser.where('status="email-delivered" and fname!=""').order("time desc").select()
+    pay_user_list = PayUser.where('integration_status="received-by-aweber" and fname!="" and rebate_amount!=0').order(
+        "time desc").select()
     for pay_user in pay_user_list:
-        data = {'payeeName': pay_user["fname"], 'payeeAccount': pay_user["email"], 'payeeAmount': "1",
+        data = {'payeeName': pay_user["fname"], 'payeeAccount': pay_user["email"],
+                'payeeAmount': pay_user["rebate_amount"],
                 'payeeCurrency': 'USD', 'bizNumber': str(pay_user["rid"]),
                 'tradeType': "3", 'remark': 'rst'}
         get_sign = ApiSign()
@@ -207,7 +209,7 @@ def post_order():
             update_dict = dict()
             update_dict["rid"] = pay_user["rid"]
             update_dict["consent_status"] = "TRANSFERING"
-            update_dict["status"] = "email opened"
+            update_dict["status"] = "email-opened"
             update_dict["order_no"] = order_no
             PayUser.save(update_dict)
         else:

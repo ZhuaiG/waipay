@@ -11,15 +11,19 @@ def import_mysql_excel():
     null_dict["pay_user_rid"] = "昨"
     null_dict["status"] = "天"
     null_dict["orderNo"] = "暂"
-    null_dict["orderNo"] = "无"
+    null_dict["transferNumber"] = "无"
     null_dict["createTime"] = "数"
     null_dict["transferTime"] = "据"
     null_dict["tradeType"] = "3"
     null_dict["payeeAmount"] = '10'
     success_result = []
-    s_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
-    success.field('pay_user_rid,status,orderNo,transferNumber,createTime,transferTime', 'tradeType',
-                  'payeeAmount').where('transferTime>').select()
+
+    now = datetime.datetime.now()
+
+    last_date = now + datetime.timedelta(days=-1)
+
+    success.field('pay_user_rid,status,orderNo,transferNumber,createTime,transferTime,tradeType,payeeAmount').where(
+        'transferTime>"%s"', last_date).select()
 
     if not success_result:
         success_result.append(null_dict)
@@ -29,7 +33,7 @@ def import_mysql_excel():
              "payeeAmount"]
     pf = pf[order]
     file_path = pd.ExcelWriter(
-        f'/success_excel/success-{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))}.xlsx')
+        f'success_excel/success-{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))}.xlsx')
 
     pf.fillna(' ', inplace=True)
 
@@ -37,3 +41,7 @@ def import_mysql_excel():
     file_path.save()
 
     print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+
+
+if __name__ == "__main__":
+    import_mysql_excel()
