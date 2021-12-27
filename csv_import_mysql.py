@@ -27,7 +27,7 @@ def get_csv():
     login_inputs[1].send_keys("uiP5LQJ3sZT!cpJ")
 
     driver.find_element_by_id('login-submit').click()
-    print("***********登录成功**************")
+    logging.info("***********登录成功**************")
 
     sleep(2)
 
@@ -36,7 +36,7 @@ def get_csv():
     sleep(2)
 
     driver.find_element_by_xpath('//*[@id="download-csv-button"]').click()
-    print("*************下载成功*************")
+    logging.info("*************下载成功*************")
 
     while True:  # 等待文件下载完成
         sleep(2)
@@ -50,16 +50,12 @@ PayUser = M("payuser")
 
 # 将csv中最新的数据插入数据库
 def update_new_data():
+    print("*********插入数据**********")
     df = pd.read_csv('customers.csv')
-
     count = 0
 
-    max_time_user = PayUser.where("rid > 1").order("time desc").limit(1).select()
-    if len(max_time_user) != 0:
-        max_time = str(max_time_user[0]["time"])
-    else:
-        max_time = '2021-12-19 19:58:58'
-        print("get mysql data is null")
+    # 最开始的起始时间，csv最早的一条数据
+    max_time = '2021-12-24 09:47:59'
 
     while True:
         if df["time"][count] == max_time:
@@ -71,33 +67,23 @@ def update_new_data():
     all_user_pay = []
 
     for i in range(count):
-        user_pay_dict = dict()
-        user_pay_dict["email"] = df2["email"][i]
-        user_pay_dict["fname"] = df2["fname"][i]
-        user_pay_dict["lname"] = df2["lname"][i]
-        user_pay_dict["time"] = df2["time"][i]
-        user_pay_dict["ip"] = df2["ip"][i]
-        user_pay_dict["campaign"] = df2["campaign"][i]
-        user_pay_dict["code"] = df2["code"][i]
-        user_pay_dict["asin"] = df2["asin"][i]
-        user_pay_dict["source"] = df2["source"][i]
-        user_pay_dict["integration_status"] = df2["integration_status"][i].replace(" ", "-")
-        user_pay_dict["status"] = df2["status"][i].replace(" ", "-")
-        user_pay_dict["consent_status"] = df2["consent_status"][i]
-        user_pay_dict["consent_msg"] = df2["consent_msg"][i]
-        user_pay_dict["rebate_amount"] = float(df2["rebate_amount"][i])
-        user_pay_dict["gclid"] = df2["gclid"][i]
-
-        all_user_pay.append(user_pay_dict)
+        if df2["status"][i] == "Shipped":
+            exit_pay_user = PayUser.where("email='%s'", df2["email"][i]).select()
+            if not exit_pay_user:
+                user_pay_dict = dict()
+                user_pay_dict["email"] = df2["email"][i]
+                user_pay_dict["fname"] = df2["fname"][i]
+                user_pay_dict["lname"] = df2["lname"][i]
+                user_pay_dict["time"] = df2["time"][i]
+                user_pay_dict["status"] = df2["status"][i]
+                user_pay_dict["rebate_amount"] = float(df2["rebate_amount"][i])
+                all_user_pay.append(user_pay_dict)
     if len(all_user_pay) != 0:
         PayUser.addAll(all_user_pay[::-1])
         os.remove('customers.csv')  # 更新数据后删除csv
-        logging.info(datetime.datetime.now(), "新数据更新成功")
-
-        # 开始转账
-        post_order()
+        logging.info("新数据更新成功", str(datetime.datetime.now()))
     else:
-        logging.info(datetime.datetime.now(), "暂无新数据更新")
+        logging.info("暂无新数据插入%s", str(datetime.datetime.now()))
 
 
 SuccessResult = M("success_result")
@@ -140,17 +126,22 @@ def check_order_status():
                 # 将转账成功的接口数据存入success_result表
                 success_insert["pay_user_rid"] = pay_user["rid"]
                 success_insert.update(get_data["content"])
-                PayUser.addAll(success_insert)
+                SuccessResult.add(success_insert)
 
             elif status == "FAIL":
+                pay_user_updata = dict()
+                pay_user_updata["rid"] = pay_user["rid"]
+                pay_user_updata["consent_status"] = status
+                PayUser.save(pay_user_updata)
                 # 转账失败将失败信息存入数据库
                 fail_insert = dict()
                 fail_insert["pay_user_rid"] = pay_user["rid"]
                 fail_insert.update(get_data["content"])
+                FailResult.add(fail_insert)
             else:
-                logging.info("rid为", pay_user["rid"], "查看转账结果接口其状态为转账中")
+                logging.info("rid为%s  查看转账结果接口其状态为转账中", str(pay_user["rid"]))
         else:
-            logging.info("查看转账结果接口调用失败rid为", pay_user["rid"], "接口失败原因:", get_data["errmsg"])
+            logging.info("查看转账结果接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), get_data["errmsg"])
 
 
 # 调用登录接口
@@ -185,7 +176,14 @@ def post_order():
         access_token = grant_authorization()
         conn.set(name='access_token', value=access_token, ex=600)
     commit_order_url = 'http://dev.payout.vip/mbs/api/outerFinance/postTransferOrder'
-    pay_user_list = PayUser.where('integration_status="received-by-aweber" and fname!="" and rebate_amount!=0').order(
+
+    # 时间筛选
+    now = datetime.datetime.now()
+    last_date = now + datetime.timedelta(days=-1)
+
+    pay_user_list = PayUser.where(
+        'status="Shipped" and fname!="" and rebate_amount!="0" and time<"%s" and consent_status="unknown"',
+        last_date).order(
         "time desc").select()
     for pay_user in pay_user_list:
         data = {'payeeName': pay_user["fname"], 'payeeAccount': pay_user["email"],
@@ -204,16 +202,15 @@ def post_order():
         print("********post_order******* 请求返回的数据", get_data)
         is_success = get_data["success"]
         if is_success is True:
-            logging.info(datetime.datetime.now(), f"用户rid{pay_user['rid']}转账成功")
+            logging.info("%s --用户rid %s转账成功", datetime.datetime.now(), str(pay_user["rid"]))
             order_no = get_data["content"]["orderNo"]
             update_dict = dict()
             update_dict["rid"] = pay_user["rid"]
             update_dict["consent_status"] = "TRANSFERING"
-            update_dict["status"] = "email-opened"
             update_dict["order_no"] = order_no
             PayUser.save(update_dict)
         else:
-            logging.info("转账接口调用失败rid为", pay_user["rid"], "接口失败原因:", get_data["errmsg"])
+            logging.info("转账接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), str(get_data["errmsg"]))
 
 
 if __name__ == "__main__":

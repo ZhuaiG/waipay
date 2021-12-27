@@ -32,7 +32,7 @@ class ApiSign(object):
 
 
 # data = {
-#     "orderNo": "1640324755620941",
+#     "orderNo": "1640590944416039",
 # }
 # sign = ApiSign()
 # s = sign.md5_sign(data)

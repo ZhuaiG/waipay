@@ -3,6 +3,8 @@ from csv_import_mysql import *
 
 from config import *
 
+from import_result import import_result
+
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED
 
 import logging
@@ -34,10 +36,18 @@ if __name__ == "__main__":
     # seconds = 40
     # minutes= 8
     print(datetime.datetime.now())
-    scheduler.add_job(func=check_order_status, trigger='interval', jobstore='redis', minutes=2)
-    sleep(60)
-    scheduler.add_job(func=post_order, trigger='interval', minutes=2)
+    scheduler.add_job(func=get_csv, trigger='interval', jobstore='redis', minutes=30,
+                      start_date='2021-12-27 16:03:00')
+
+    scheduler.add_job(func=post_order, trigger='interval', minutes=10, start_date='2021-12-27 16:03:00')
+
+    scheduler.add_job(func=check_order_status, trigger='interval', minutes=40)
+
+    scheduler.add_job(func=import_result, trigger='interval', minutes=4)
+
     scheduler.add_listener(job_listener, EVENT_JOB_ERROR | EVENT_JOB_MISSED | EVENT_JOB_EXECUTED)
     scheduler._logger = logging
 
     scheduler.start()
+
+# scheduler.add_job(job, 'interval', minutes=1, seconds = 30, start_date='2019-08-29 22:15:00', end_date='2019-08-29 22:17:00', args=['job2'])
