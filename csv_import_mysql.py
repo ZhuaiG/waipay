@@ -76,6 +76,7 @@ def update_new_data():
                 user_pay_dict["lname"] = df2["lname"][i]
                 user_pay_dict["time"] = df2["time"][i]
                 user_pay_dict["status"] = df2["status"][i]
+                user_pay_dict["code"] = df2["code"][i]
                 user_pay_dict["rebate_amount"] = float(df2["rebate_amount"][i])
                 all_user_pay.append(user_pay_dict)
     if len(all_user_pay) != 0:
@@ -93,7 +94,7 @@ FailResult = M("fail_result")
 # 调用转账结果接口，存入转账信息
 def check_order_status():
     # 获取access_token
-    conn = Redis(host='localhost', port=6379, password='k8)vG}RV', db=8)
+    conn = Redis(host='localhost', port=6379, db=8)
     access_token = conn.get('access_token')
 
     if access_token is None:
@@ -170,7 +171,7 @@ def grant_authorization():
 # 调用转账接口
 def post_order():
     # 获取access_token
-    conn = Redis(host='localhost', port=6379, password='k8)vG}RV', db=8)
+    conn = Redis(host='localhost', port=6379, db=8)
     access_token = conn.get('access_token')
 
     if access_token is None:
@@ -192,7 +193,7 @@ def post_order():
         data = {'payeeName': pay_user["fname"] + ' ' + pay_user["lname"], 'payeeAccount': pay_user["email"],
                 'payeeAmount': pay_user["rebate_amount"],
                 'payeeCurrency': 'USD', 'bizNumber': str(pay_user["rid"]),
-                'tradeType': "3", 'remark': 'rst'}
+                'tradeType': "3", 'remark': f'Rebate Order of {pay_user["code"]}'}
         get_sign = ApiSign()
         sign = get_sign.md5_sign(data)
 
@@ -214,3 +215,7 @@ def post_order():
             PayUser.save(update_dict)
         else:
             logging.info("转账接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), str(get_data["errmsg"]))
+
+
+if __name__ == "__main__":
+    check_order_status()

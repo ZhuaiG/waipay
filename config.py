@@ -9,7 +9,7 @@ CONFIG = {
     0: {
         "host": '127.0.0.1',  # 可选，默认127.0.0.1
         "user": 'root',  # 可选，默认root
-        'password': 'Metence1@',  # 必选
+        'password': 'root',  # 必选
         'database': 'waipay',  # 必选
         'port': '3306',  # 可选，默认3306
         'dbms': 'mysql',  # 可选，默认mysql
@@ -28,7 +28,7 @@ REDIS = {
     'host': '127.0.0.1',
     'port': '6379',
     'db': 8,
-    'password': 'k8)vG}RV'
+    'password': ''
 }
 
 JOB_STORES = {
