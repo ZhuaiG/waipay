@@ -28,7 +28,7 @@ REDIS = {
     'host': '127.0.0.1',
     'port': '6379',
     'db': 8,
-    'password': ''
+    'password': 'k8)vG}RV'
 }
 
 JOB_STORES = {
