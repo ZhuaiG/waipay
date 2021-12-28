@@ -100,7 +100,7 @@ def check_order_status():
         access_token = grant_authorization()
         conn.set(name='access_token', value=access_token, ex=600)
 
-    check_order_url = 'http://dev.payout.vip/mbs/api/outerFinance/checkTransferResult'
+    check_order_url = 'https://payout.waipay.com/mbs/api/outerFinance/checkTransferResult'
     pay_user_list = PayUser.where('consent_status="TRANSFERING" and order_no!=""').select()
     headers = {"access_token": access_token}
     for pay_user in pay_user_list:
@@ -146,19 +146,20 @@ def check_order_status():
 
 # 调用登录接口
 def login_to_get(app_id, key):
-    login_url = 'http://dev.payout.vip/mbs/pub/user/getOuterAccessToken'
+    login_url = 'https://payout.waipay.com/mbs/pub/user/getOuterAccessToken'
     data = {'appId': app_id, 'key': key}
     req = requests.post(login_url, json=data)
     get_data = req.json()
     access_token = get_data["content"]
-    print("*********获取token成功***************")
+    print("*get_csv********获取token成功***************")
     return access_token
 
 
 # 调用获取权限接口
 def grant_authorization():
-    grant_authorization_url = 'http://dev.payout.vip/mbs/pub/user/authOuterKey'
-    data = {'username': '18908406059', 'password': 'abcd1234'}
+    # grant_authorization_url = 'http://dev.payout.vip/mbs/pub/user/authOuterKey'
+    grant_authorization_url = 'https://payout.waipay.com/mbs/pub/user/authOuterKey'
+    data = {'username': '13751022374', 'password': 'Clsw2102'}
     req = requests.post(grant_authorization_url, json=data)
     get_data = req.json()
     app_id = get_data["content"]["appId"]
@@ -175,18 +176,20 @@ def post_order():
     if access_token is None:
         access_token = grant_authorization()
         conn.set(name='access_token', value=access_token, ex=600)
-    commit_order_url = 'http://dev.payout.vip/mbs/api/outerFinance/postTransferOrder'
+    commit_order_url = 'https://payout.waipay.com/mbs/api/outerFinance/postTransferOrder'
 
     # 时间筛选
     now = datetime.datetime.now()
     last_date = now + datetime.timedelta(days=-1)
 
     pay_user_list = PayUser.where(
-        'status="Shipped" and fname!="" and rebate_amount!="0" and time<"%s" and consent_status="unknown"',
-        last_date).order(
+        'status="Shipped" and fname!="" and rebate_amount!="0"  and consent_status="" and time<"%s"',
+        last_date.strftime('%Y-%m-%d %H:%M:%S')
+    ).order(
         "time desc").select()
+    print(pay_user_list)
     for pay_user in pay_user_list:
-        data = {'payeeName': pay_user["fname"], 'payeeAccount': pay_user["email"],
+        data = {'payeeName': pay_user["fname"] + ' ' + pay_user["lname"], 'payeeAccount': pay_user["email"],
                 'payeeAmount': pay_user["rebate_amount"],
                 'payeeCurrency': 'USD', 'bizNumber': str(pay_user["rid"]),
                 'tradeType': "3", 'remark': 'rst'}
@@ -213,5 +216,3 @@ def post_order():
             logging.info("转账接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), str(get_data["errmsg"]))
 
 
-if __name__ == "__main__":
-    check_order_status()

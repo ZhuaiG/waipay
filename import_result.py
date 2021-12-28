@@ -1,5 +1,4 @@
 import pandas as pd
-import datetime
 import time
 from pythonMySQL import *
 
