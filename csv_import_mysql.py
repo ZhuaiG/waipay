@@ -93,7 +93,7 @@ FailResult = M("fail_result")
 # 调用转账结果接口，存入转账信息
 def check_order_status():
     # 获取access_token
-    conn = Redis(host='localhost', port=6379, db=0)
+    conn = Redis(host='localhost', port=6379, password='k8)vG}RV', db=8)
     access_token = conn.get('access_token')
 
     if access_token is None:
@@ -170,7 +170,7 @@ def grant_authorization():
 # 调用转账接口
 def post_order():
     # 获取access_token
-    conn = Redis(host='localhost', port=6379, db=0)
+    conn = Redis(host='localhost', port=6379, password='k8)vG}RV', db=8)
     access_token = conn.get('access_token')
 
     if access_token is None:
@@ -214,5 +214,3 @@ def post_order():
             PayUser.save(update_dict)
         else:
             logging.info("转账接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), str(get_data["errmsg"]))
-
-

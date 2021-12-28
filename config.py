@@ -9,7 +9,7 @@ CONFIG = {
     0: {
         "host": '127.0.0.1',  # 可选，默认127.0.0.1
         "user": 'root',  # 可选，默认root
-        'password': 'root',  # 必选
+        'password': 'Metence1@',  # 必选
         'database': 'waipay',  # 必选
         'port': '3306',  # 可选，默认3306
         'dbms': 'mysql',  # 可选，默认mysql
@@ -39,5 +39,3 @@ EXECUTORS = {
     'default': ThreadPoolExecutor(10),  # 默认线程数
     'processpool': ProcessPoolExecutor(3)  # 默认进程
 }
-
-
