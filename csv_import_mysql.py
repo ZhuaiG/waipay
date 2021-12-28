@@ -218,4 +218,4 @@ def post_order():
 
 
 if __name__ == "__main__":
-    check_order_status()
+    get_csv()
