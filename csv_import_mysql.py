@@ -17,7 +17,7 @@ def get_csv():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
 
-    driver = webdriver.Chrome(chrome_options=chrome_options)
+    driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=chrome_options)
 
     params = {'behavior': 'allow', 'downloadPath': OS_PATH}
     driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
