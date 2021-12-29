@@ -39,3 +39,5 @@ EXECUTORS = {
     'default': ThreadPoolExecutor(10),  # 默认线程数
     'processpool': ProcessPoolExecutor(3)  # 默认进程
 }
+
+OS_PATH = '/home/ec2-user/project_waipay/waipay/'

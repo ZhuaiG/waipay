@@ -9,6 +9,7 @@ import logging
 import requests
 from SignHelper import ApiSign
 from redis import Redis
+from config import OS_PATH
 
 
 # 网站获取csv文件
@@ -17,6 +18,9 @@ def get_csv():
     chrome_options.add_argument("--headless")
 
     driver = webdriver.Chrome(chrome_options=chrome_options)
+
+    params = {'behavior': 'allow', 'downloadPath': OS_PATH}
+    driver.execute_cdp_cmd('Page.setDownloadBehavior', params)
 
     driver.get('https://pages.landingcube.com/login/')
 
@@ -28,6 +32,7 @@ def get_csv():
 
     driver.find_element_by_id('login-submit').click()
     logging.info("***********登录成功**************")
+    print("*******登录成功*********")
 
     sleep(2)
 
@@ -37,10 +42,10 @@ def get_csv():
 
     driver.find_element_by_xpath('//*[@id="download-csv-button"]').click()
     logging.info("*************下载成功*************")
-
+    print("*******下载成功*********")
     while True:  # 等待文件下载完成
         sleep(2)
-        if os.path.exists('customers.csv'):
+        if os.path.exists(OS_PATH + 'customers.csv'):
             break
     update_new_data()
 
@@ -51,7 +56,7 @@ PayUser = M("payuser")
 # 将csv中最新的数据插入数据库
 def update_new_data():
     print("*********插入数据**********")
-    df = pd.read_csv('customers.csv')
+    df = pd.read_csv(OS_PATH + 'customers.csv')
     count = 0
 
     # 最开始的起始时间，csv最早的一条数据
@@ -81,7 +86,7 @@ def update_new_data():
                 all_user_pay.append(user_pay_dict)
     if len(all_user_pay) != 0:
         PayUser.addAll(all_user_pay[::-1])
-        os.remove('customers.csv')  # 更新数据后删除csv
+        os.remove(OS_PATH + 'customers.csv')  # 更新数据后删除csv
         logging.info("新数据更新成功", str(datetime.datetime.now()))
     else:
         logging.info("暂无新数据插入%s", str(datetime.datetime.now()))
