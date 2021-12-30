@@ -11,12 +11,12 @@ from SignHelper import ApiSign
 from redis import Redis
 from config import OS_PATH
 
-logger = logging.getLogger('job1')
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filename='csv_import_mysql_log.txt',
-                    filemode='a')
+# logger = logging.getLogger('job1')
+# logging.basicConfig(level=logging.INFO,
+#                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+#                     datefmt='%Y-%m-%d %H:%M:%S',
+#                     filename='csv_import_mysql_log.txt',
+#                     filemode='a')
 
 
 # 网站获取csv文件
