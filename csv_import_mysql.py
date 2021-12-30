@@ -55,7 +55,7 @@ def get_csv():
         sleep(2)
         if os.path.exists(OS_PATH + 'customers.csv'):
             break
-            driver.quit()
+    driver.quit()
     update_new_data()
 
 
