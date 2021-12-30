@@ -67,7 +67,7 @@ def update_new_data():
             break
         count += 1
 
-    df2 = pd.read_csv('customers.csv', nrows=count, keep_default_na=False)
+    df2 = pd.read_csv(OS_PATH+'customers.csv', nrows=count, keep_default_na=False)
 
     all_user_pay = []
 
