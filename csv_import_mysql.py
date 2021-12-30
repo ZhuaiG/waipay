@@ -81,11 +81,13 @@ def update_new_data():
         if df2["status"][i] == "Shipped":
             exit_pay_user = PayUser.where("email='%s'", df2["email"][i]).select()
             if not exit_pay_user:
+                now = datetime.datetime.now()
+                now_time = now.strftime('%Y-%m-%d %H:%M:%S')
                 user_pay_dict = dict()
                 user_pay_dict["email"] = df2["email"][i]
                 user_pay_dict["fname"] = df2["fname"][i]
                 user_pay_dict["lname"] = df2["lname"][i]
-                user_pay_dict["time"] = df2["time"][i]
+                user_pay_dict["time"] = now_time
                 user_pay_dict["status"] = df2["status"][i]
                 user_pay_dict["code"] = df2["code"][i]
                 user_pay_dict["rebate_amount"] = float(df2["rebate_amount"][i])
@@ -93,7 +95,7 @@ def update_new_data():
     if len(all_user_pay) != 0:
         PayUser.addAll(all_user_pay[::-1])
         os.remove(OS_PATH + 'customers.csv')  # 更新数据后删除csv
-        logging.info("新数据更新成功", str(datetime.datetime.now()))
+        logging.info("新数据更新成功%s", str(datetime.datetime.now()))
     else:
         logging.info("暂无新数据插入%s", str(datetime.datetime.now()))
 
