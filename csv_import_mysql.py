@@ -11,6 +11,7 @@ from SignHelper import ApiSign
 from redis import Redis
 from config import OS_PATH
 
+
 # logging.basicConfig(level=logging.INFO,
 #                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
 #                     datefmt='%Y-%m-%d %H:%M:%S',
@@ -21,6 +22,7 @@ from config import OS_PATH
 def get_csv():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
 
     driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=chrome_options)
 
