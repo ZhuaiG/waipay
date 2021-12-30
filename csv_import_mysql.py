@@ -11,6 +11,12 @@ from SignHelper import ApiSign
 from redis import Redis
 from config import OS_PATH
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename='csv_import_mysql_log.txt',
+                    filemode='a')
+
 
 # 网站获取csv文件
 def get_csv():
@@ -67,7 +73,7 @@ def update_new_data():
             break
         count += 1
 
-    df2 = pd.read_csv(OS_PATH+'customers.csv', nrows=count, keep_default_na=False)
+    df2 = pd.read_csv(OS_PATH + 'customers.csv', nrows=count, keep_default_na=False)
 
     all_user_pay = []
 
