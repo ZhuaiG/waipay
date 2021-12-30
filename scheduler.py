@@ -36,14 +36,14 @@ if __name__ == "__main__":
     # seconds = 40
     # minutes= 8
     print(datetime.datetime.now())
-    scheduler.add_job(func=get_csv, trigger='interval', jobstore='redis', minutes=10, max_instances=3,
+    scheduler.add_job(func=get_csv, trigger='interval', jobstore='redis', minutes=2, max_instances=3,
                       start_date='2021-12-27 16:03:00')
 
-    scheduler.add_job(func=post_order, trigger='interval', minutes=20, start_date='2021-12-27 16:03:00')
-
-    scheduler.add_job(func=check_order_status, trigger='interval', minutes=40, start_date='2021-12-27 16:03:00')
-
-    scheduler.add_job(func=import_result, trigger='cron', hour='18')
+    # scheduler.add_job(func=post_order, trigger='interval', minutes=20, start_date='2021-12-27 16:03:00')
+    #
+    # scheduler.add_job(func=check_order_status, trigger='interval', minutes=40, start_date='2021-12-27 16:03:00')
+    #
+    # scheduler.add_job(func=import_result, trigger='cron', hour='18')
 
     scheduler.add_listener(job_listener, EVENT_JOB_ERROR | EVENT_JOB_MISSED | EVENT_JOB_EXECUTED)
 
