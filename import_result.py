@@ -29,7 +29,7 @@ def import_mysql_success_excel():
              "payeeAmount"]
     pf = pf[order]
     file_path = pd.ExcelWriter(
-        f'success_excel/success-{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))}.xlsx')
+        f'success_excel/success-{time.strftime("%Y-%m-%d", time.localtime(time.time()))}.xlsx')
 
     pf.fillna(' ', inplace=True)
 
@@ -56,7 +56,7 @@ def import_mysql_fail_excel():
     order = ["id", "pay_user_rid", "status", "errorMessage", "orderNo"]
     pf = pf[order]
     file_path = pd.ExcelWriter(
-        f'fail_excel/fail-{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))}.xlsx')
+        f'fail_excel/fail-{time.strftime("%Y-%m-%d", time.localtime(time.time()))}.xlsx')
 
     pf.fillna(' ', inplace=True)
 
