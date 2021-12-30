@@ -37,7 +37,7 @@ if __name__ == "__main__":
     # seconds = 40
     # minutes= 8
     print(datetime.datetime.now())
-    scheduler.add_job(func=get_csv, trigger='interval', jobstore='redis', minutes=2,
+    scheduler.add_job(func=get_csv, trigger='interval', jobstore='redis', minutes=30,
                       start_date='2021-12-27 16:03:00')
 
     scheduler.add_job(func=post_order, trigger='interval', minutes=20, start_date='2021-12-27 16:03:00')
