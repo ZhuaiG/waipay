@@ -26,6 +26,7 @@ def job_listener(event):
 
     else:
         print("任务出错了！！！！！")
+        print(event.exception)
         logger.error("jobname=%s|jobtrigger=%s|errcode=%s|exception=[%s]|traceback=[%s]|scheduled_time=%s", job.name,
                      job.trigger, event.code,
                      event.exception, event.traceback, event.scheduled_run_time)
