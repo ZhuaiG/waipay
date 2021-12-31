@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     scheduler.add_job(func=check_order_status, trigger='interval', minutes=40, start_date='2021-12-27 16:03:00')
 
-    scheduler.add_job(func=check_order_status, trigger='interval', hour=24, start_date='2021-12-27 16:03:00')
+    scheduler.add_job(func=check_order_status, trigger='interval', hours=24, start_date='2021-12-27 16:03:00')
 
     scheduler.add_listener(job_listener, EVENT_JOB_ERROR | EVENT_JOB_MISSED | EVENT_JOB_EXECUTED)
 
