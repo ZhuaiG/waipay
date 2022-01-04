@@ -19,7 +19,7 @@ def import_mysql_success_excel():
 
     success_result = SuccessResult.field(
         'pay_user_rid,status,orderNo,transferNumber,createTime,transferTime,tradeType,payeeAmount').where(
-        "id>'1'").select()
+        "id>='1'").select()
 
     if not success_result:
         success_result.append(null_dict)
@@ -29,7 +29,7 @@ def import_mysql_success_excel():
              "payeeAmount"]
     pf = pf[order]
     file_path = pd.ExcelWriter(
-        f'success_excel/success-{time.strftime("%Y-%m-%d", time.localtime(time.time()))}.xlsx')
+        f'/home/ec2-user/project_waipay/waipay/success_excel/success-{time.strftime("%Y-%m-%d", time.localtime(time.time()))}.xlsx')
 
     pf.fillna(' ', inplace=True)
 
@@ -47,7 +47,7 @@ def import_mysql_fail_excel():
     null_dict["errorMessage"] = "无"
     null_dict["orderNo"] = "1"
 
-    fail_result = FailResult.field('id,pay_user_rid,status,errorMessage,orderNo').where("id>'1'").select()
+    fail_result = FailResult.field('id,pay_user_rid,status,errorMessage,orderNo').where("id>='1'").select()
 
     if not fail_result:
         fail_result.append(null_dict)
@@ -56,7 +56,7 @@ def import_mysql_fail_excel():
     order = ["id", "pay_user_rid", "status", "errorMessage", "orderNo"]
     pf = pf[order]
     file_path = pd.ExcelWriter(
-        f'fail_excel/fail-{time.strftime("%Y-%m-%d", time.localtime(time.time()))}.xlsx')
+        f'/home/ec2-user/project_waipay/waipay/fail_excel/fail-{time.strftime("%Y-%m-%d", time.localtime(time.time()))}.xlsx')
 
     pf.fillna(' ', inplace=True)
 

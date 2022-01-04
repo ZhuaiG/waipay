@@ -98,9 +98,9 @@ def update_new_data():
     if len(all_user_pay) != 0:
         PayUser.addAll(all_user_pay[::-1])
         os.remove(OS_PATH + 'customers.csv')  # 更新数据后删除csv
-        logging.info("新数据更新成功%s", str(datetime.datetime.now()))
+        print("新数据更新成功%s", str(datetime.datetime.now()))
     else:
-        logging.info("暂无新数据插入%s", str(datetime.datetime.now()))
+        print("暂无新数据插入%s", str(datetime.datetime.now()))
 
 
 SuccessResult = M("success_result")
@@ -120,45 +120,48 @@ def check_order_status():
     check_order_url = 'https://payout.waipay.com/mbs/api/outerFinance/checkTransferResult'
     pay_user_list = PayUser.where('consent_status="TRANSFERING" and order_no!=""').select()
     headers = {"access_token": access_token}
-    for pay_user in pay_user_list:
-        data = {'orderNo': pay_user["order_no"]}
+    if pay_user_list:
+        for pay_user in pay_user_list:
+            data = {'orderNo': pay_user["order_no"]}
 
-        get_sign = ApiSign()
-        sign = get_sign.md5_sign(data)
-        data['sign'] = sign
+            get_sign = ApiSign()
+            sign = get_sign.md5_sign(data)
+            data['sign'] = sign
 
-        req = requests.post(check_order_url, json=data, headers=headers)
-        get_data = req.json()
-        print("********check_order_status******* 请求返回的数据", get_data)
-        is_success = get_data["success"]
-        if is_success is True:
-            status = get_data["content"]["status"]
-            if status == "SUCCESS":
-                pay_user_updata = dict()
-                success_insert = dict()
-                # 修改payuser表转账状态
-                pay_user_updata["rid"] = pay_user["rid"]
-                pay_user_updata["consent_status"] = status
-                PayUser.save(pay_user_updata)
-                # 将转账成功的接口数据存入success_result表
-                success_insert["pay_user_rid"] = pay_user["rid"]
-                success_insert.update(get_data["content"])
-                SuccessResult.add(success_insert)
+            req = requests.post(check_order_url, json=data, headers=headers)
+            get_data = req.json()
+            print("********check_order_status******* 请求返回的数据", get_data)
+            is_success = get_data["success"]
+            if is_success is True:
+                status = get_data["content"]["status"]
+                if status == "SUCCESS":
+                    pay_user_updata = dict()
+                    success_insert = dict()
+                    # 修改payuser表转账状态
+                    pay_user_updata["rid"] = pay_user["rid"]
+                    pay_user_updata["consent_status"] = status
+                    PayUser.save(pay_user_updata)
+                    # 将转账成功的接口数据存入success_result表
+                    success_insert["pay_user_rid"] = pay_user["rid"]
+                    success_insert.update(get_data["content"])
+                    SuccessResult.add(success_insert)
 
-            elif status == "FAIL":
-                pay_user_updata = dict()
-                pay_user_updata["rid"] = pay_user["rid"]
-                pay_user_updata["consent_status"] = status
-                PayUser.save(pay_user_updata)
-                # 转账失败将失败信息存入数据库
-                fail_insert = dict()
-                fail_insert["pay_user_rid"] = pay_user["rid"]
-                fail_insert.update(get_data["content"])
-                FailResult.add(fail_insert)
+                elif status == "FAIL":
+                    pay_user_updata = dict()
+                    pay_user_updata["rid"] = pay_user["rid"]
+                    pay_user_updata["consent_status"] = status
+                    PayUser.save(pay_user_updata)
+                    # 转账失败将失败信息存入数据库
+                    fail_insert = dict()
+                    fail_insert["pay_user_rid"] = pay_user["rid"]
+                    fail_insert.update(get_data["content"])
+                    FailResult.add(fail_insert)
+                else:
+                    print("rid为%s  查看转账结果接口其状态为转账中", str(pay_user["rid"]))
             else:
-                logging.info("rid为%s  查看转账结果接口其状态为转账中", str(pay_user["rid"]))
-        else:
-            logging.info("查看转账结果接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), get_data["errmsg"])
+                print("查看转账结果接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), get_data["errmsg"])
+    else:
+        print("check_order_status方法,pay_user_list无数据")
 
 
 # 调用登录接口
@@ -205,32 +208,35 @@ def post_order():
     ).order(
         "time desc").select()
     print(pay_user_list)
-    for pay_user in pay_user_list:
-        data = {'payeeName': pay_user["fname"] + ' ' + pay_user["lname"], 'payeeAccount': pay_user["email"],
-                'payeeAmount': pay_user["rebate_amount"],
-                'payeeCurrency': 'USD', 'bizNumber': str(pay_user["rid"]),
-                'tradeType': "3", 'remark': f'Rebate Order of {pay_user["code"]}'}
-        get_sign = ApiSign()
-        sign = get_sign.md5_sign(data)
+    if pay_user_list:
+        for pay_user in pay_user_list:
+            data = {'payeeName': pay_user["fname"] + ' ' + pay_user["lname"], 'payeeAccount': pay_user["email"],
+                    'payeeAmount': pay_user["rebate_amount"],
+                    'payeeCurrency': 'USD', 'bizNumber': str(pay_user["rid"]),
+                    'tradeType': "3", 'remark': f'Rebate Order of {pay_user["code"]}'}
+            get_sign = ApiSign()
+            sign = get_sign.md5_sign(data)
 
-        data['sign'] = sign
+            data['sign'] = sign
 
-        headers = {"access_token": access_token}
-        req = requests.post(commit_order_url, json=data, headers=headers)
-        sleep(2)
-        get_data = req.json()
-        print("********post_order******* 请求返回的数据", get_data)
-        is_success = get_data["success"]
-        if is_success is True:
-            logging.info("%s --用户rid %s转账成功", datetime.datetime.now(), str(pay_user["rid"]))
-            order_no = get_data["content"]["orderNo"]
-            update_dict = dict()
-            update_dict["rid"] = pay_user["rid"]
-            update_dict["consent_status"] = "TRANSFERING"
-            update_dict["order_no"] = order_no
-            PayUser.save(update_dict)
-        else:
-            logging.info("转账接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), str(get_data["errmsg"]))
+            headers = {"access_token": access_token}
+            req = requests.post(commit_order_url, json=data, headers=headers)
+            sleep(2)
+            get_data = req.json()
+            print("********post_order******* 请求返回的数据", get_data)
+            is_success = get_data["success"]
+            if is_success is True:
+                print("%s --用户rid %s转账成功", datetime.datetime.now(), str(pay_user["rid"]))
+                order_no = get_data["content"]["orderNo"]
+                update_dict = dict()
+                update_dict["rid"] = pay_user["rid"]
+                update_dict["consent_status"] = "TRANSFERING"
+                update_dict["order_no"] = order_no
+                PayUser.save(update_dict)
+            else:
+                print("转账接口调用失败rid为%s,接口失败原因:%s", str(pay_user["rid"]), str(get_data["errmsg"]))
+    else:
+        print("post_order方法,pay_user_list无数据")
 
 
 if __name__ == "__main__":

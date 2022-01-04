@@ -3,7 +3,6 @@ from csv_import_mysql import *
 
 from config import *
 
-from import_result import import_result
 
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED
 
