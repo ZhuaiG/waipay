@@ -94,7 +94,7 @@ def update_new_data():
                 user_pay_dict["time"] = now_time
                 user_pay_dict["status"] = df2["status"][i]
                 user_pay_dict["code"] = df2["code"][i]
-                user_pay_dict["rebate_amount"] = float(df2["rebate_amount"][i])
+                user_pay_dict["rebate_amount"] = 12.00
                 all_user_pay.append(user_pay_dict)
     if len(all_user_pay) != 0:
         PayUser.addAll(all_user_pay[::-1])
