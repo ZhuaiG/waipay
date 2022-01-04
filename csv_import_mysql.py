@@ -11,6 +11,7 @@ from SignHelper import ApiSign
 from redis import Redis
 from config import OS_PATH
 
+
 # logger = logging.getLogger('job1')
 # logging.basicConfig(level=logging.INFO,
 #                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -97,10 +98,12 @@ def update_new_data():
                 all_user_pay.append(user_pay_dict)
     if len(all_user_pay) != 0:
         PayUser.addAll(all_user_pay[::-1])
-        os.remove(OS_PATH + 'customers.csv')  # 更新数据后删除csv
         print("新数据更新成功%s", str(datetime.datetime.now()))
     else:
         print("暂无新数据插入%s", str(datetime.datetime.now()))
+
+    if os.path.exists(OS_PATH + 'customers.csv'):
+        os.remove(OS_PATH + 'customers.csv')  # 删除csv
 
 
 SuccessResult = M("success_result")
