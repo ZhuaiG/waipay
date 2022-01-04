@@ -214,7 +214,7 @@ def post_order():
     if pay_user_list:
         for pay_user in pay_user_list:
             data = {'payeeName': pay_user["fname"] + ' ' + pay_user["lname"], 'payeeAccount': pay_user["email"],
-                    'payeeAmount': 12.00,
+                    'payeeAmount': pay_user["rebate_amount"],
                     'payeeCurrency': 'USD', 'bizNumber': str(pay_user["rid"]),
                     'tradeType': "3", 'remark': f'Rebate Order of {pay_user["code"]}'}
             get_sign = ApiSign()
