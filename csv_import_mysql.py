@@ -97,6 +97,7 @@ def update_new_data():
                 user_pay_dict["code"] = df2["code"][i]
                 user_pay_dict["rebate_amount"] = 12.00
                 all_user_pay.append(user_pay_dict)
+    print("all_user_pay的值为", all_user_pay)
     if len(all_user_pay) != 0:
         PayUser.addAll(all_user_pay[::-1])
         print("新数据更新成功%s", str(datetime.datetime.now()))
