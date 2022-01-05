@@ -83,6 +83,7 @@ def update_new_data():
 
     for i in range(count):
         if df2["status"][i] == "Shipped":
+            print(df2["email"][i])
             exit_pay_user = PayUser.where("email='%s'", df2["email"][i]).select()
             if not exit_pay_user:
                 now = datetime.datetime.now()
