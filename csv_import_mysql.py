@@ -97,6 +97,7 @@ def update_new_data():
                 user_pay_dict["rebate_amount"] = 12.00
                 all_user_pay.append(user_pay_dict)
     if len(all_user_pay) != 0:
+        print(all_user_pay)
         PayUser.addAll(all_user_pay[::-1])
         print("新数据更新成功%s", str(datetime.datetime.now()))
     else:
