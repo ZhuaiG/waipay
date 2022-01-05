@@ -83,9 +83,9 @@ def update_new_data():
 
     for i in range(count):
         if df2["status"][i] == "Shipped":
-            print(df2["email"][i])
             exit_pay_user = PayUser.where("email='%s'", df2["email"][i]).select()
             if not exit_pay_user:
+                print(df2["email"][i])
                 now = datetime.datetime.now()
                 now_time = now.strftime('%Y-%m-%d %H:%M:%S')
                 user_pay_dict = dict()
@@ -97,9 +97,7 @@ def update_new_data():
                 user_pay_dict["code"] = df2["code"][i]
                 user_pay_dict["rebate_amount"] = 12.00
                 all_user_pay.append(user_pay_dict)
-    print(all_user_pay)
     if len(all_user_pay) != 0:
-        print(all_user_pay)
         PayUser.addAll(all_user_pay[::-1])
         print("新数据更新成功%s", str(datetime.datetime.now()))
     else:
