@@ -95,7 +95,7 @@ def update_new_data():
                 user_pay_dict["time"] = now_time
                 user_pay_dict["status"] = df2["status"][i]
                 user_pay_dict["code"] = df2["code"][i]
-                user_pay_dict["rebate_amount"] = 12
+                user_pay_dict["rebate_amount"] = 15
                 all_user_pay.append(user_pay_dict)
     print("all_user_pay的值为", all_user_pay)
     if len(all_user_pay) != 0:
