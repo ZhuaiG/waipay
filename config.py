@@ -10,7 +10,7 @@ CONFIG = {
         "host": '127.0.0.1',  # 可选，默认127.0.0.1
         "user": 'root',  # 可选，默认root
         'password': 'root',  # 必选
-        'database': 'waipay',  # 必选
+        'database': 'waipay02',  # 必选
         'port': '3306',  # 可选，默认3306
         'dbms': 'mysql',  # 可选，默认mysql
         'charset': 'utf8',  # 可选
@@ -27,7 +27,7 @@ CONFIG = {
 REDIS = {
     'host': '127.0.0.1',
     'port': '6379',
-    'db': 8,
+    'db': 7,
     'password': ''
 }
 
@@ -40,4 +40,4 @@ EXECUTORS = {
     'processpool': ProcessPoolExecutor(3)  # 默认进程
 }
 
-OS_PATH = '/home/ec2-user/project_waipay/waipay/'
+OS_PATH = '/home/ec2-user/project_waipay/waipay_yin/waipay/'
