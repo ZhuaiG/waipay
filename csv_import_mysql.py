@@ -35,9 +35,9 @@ def get_csv():
 
     login_inputs = driver.find_elements_by_class_name('input')
 
-    login_inputs[0].send_keys("irebateio@gmail.com")
+    login_inputs[0].send_keys("irebateio+1@gmail.com")
 
-    login_inputs[1].send_keys("uiP5LQJ3sZT!cpJ")
+    login_inputs[1].send_keys("8DK0@hlz#%HRkeggMBFW36#D")
 
     driver.find_element_by_id('login-submit').click()
     logging.info("***********登录成功**************")
@@ -184,7 +184,7 @@ def login_to_get(app_id, key):
 def grant_authorization():
     # grant_authorization_url = 'http://dev.payout.vip/mbs/pub/user/authOuterKey'
     grant_authorization_url = 'https://payout.waipay.com/mbs/pub/user/authOuterKey'
-    data = {'username': '13751022374', 'password': 'Clsw2102'}
+    data = {'username': '13436039417', 'password': 'gaole9417'}
     req = requests.post(grant_authorization_url, json=data)
     get_data = req.json()
     app_id = get_data["content"]["appId"]
